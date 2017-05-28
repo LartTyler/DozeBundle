@@ -1,0 +1,11 @@
+services:
+    dbstudios_doze.responder:
+        class: DaybreakStudios\DozeBundle\Responder
+        arguments:
+            - '@serializer'
+            - '@request_stack'
+
+    dbstudios_doze.request.api_bag_converter:
+        class: DaybreakStudios\DozeBundle\Request\ApiParameterBagConverter
+        tags:
+            - name: request.param_converter
