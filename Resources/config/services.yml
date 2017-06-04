@@ -1,9 +1,6 @@
 services:
-    dbstudios_doze.responder:
-        class: DaybreakStudios\DozeBundle\Responder
-        arguments:
-            - '@serializer'
-            - '@request_stack'
+    dbstudios_doze.serializer.entity_normalizer:
+        class: DaybreakStudios\Doze\Serializer\EntityNormalizer
 
     dbstudios_doze.request.api_bag_converter:
         class: DaybreakStudios\DozeBundle\Request\ApiParameterBagConverter
