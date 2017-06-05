@@ -59,6 +59,8 @@
 		 * @return static
 		 */
 		public static function fromRequest(Request $request) {
-			return new static(json_decode($request->getContent(), true) ?: [], $request->get('_payload_required', []));
+			$required = $request->attributes->get('_payload_required', []);
+
+			return new static(json_decode($request->getContent(), true) ?: [], $required);
 		}
 	}
