@@ -20,6 +20,11 @@
 		private $logger;
 
 		/**
+		 * @var bool
+		 */
+		private $enabled;
+
+		/**
 		 * @var array
 		 */
 		private $allowedOrigins;
@@ -42,6 +47,7 @@
 		 * CORSListener constructor.
 		 *
 		 * @param LoggerInterface $logger
+		 * @param bool            $enabled
 		 * @param array           $allowedOrigins
 		 * @param array           $allowedHeaders
 		 * @param array           $allowedMethods
@@ -49,16 +55,25 @@
 		 */
 		public function __construct(
 			LoggerInterface $logger,
+			$enabled,
 			array $allowedOrigins,
 			array $allowedHeaders,
 			array $allowedMethods,
 			$allowCredentials = true
 		) {
 			$this->logger = $logger;
+			$this->enabled = $enabled;
 			$this->allowedOrigins = $allowedOrigins;
 			$this->allowedHeaders = $allowedHeaders;
 			$this->allowedMethods = $allowedMethods;
 			$this->allowCredentials = $allowCredentials;
+		}
+
+		/**
+		 * @return boolean
+		 */
+		public function isEnabled() {
+			return $this->enabled;
 		}
 
 		/**
@@ -93,7 +108,7 @@
 		 * @param GetResponseEvent $event
 		 */
 		public function onKernelRequest(GetResponseEvent $event) {
-			if (!$event->isMasterRequest())
+			if (!$this->isEnabled() || !$event->isMasterRequest())
 				return;
 
 			$request = $event->getRequest();
@@ -103,7 +118,7 @@
 			if ($request->getMethod() !== Request::METHOD_OPTIONS)
 				return;
 
-			$allowHeaders = array_map(function($item) {
+			$allowHeaders = array_map(function ($item) {
 				return strtolower(trim($item));
 			}, explode(',', $request->headers->get('Access-Control-Request-Headers')));
 
@@ -120,6 +135,9 @@
 		 * @param FilterResponseEvent $event
 		 */
 		public function onKernelResponse(FilterResponseEvent $event) {
+			if (!$this->isEnabled())
+				return;
+
 			$response = $event->getResponse();
 
 			if ($response->headers->has('Access-Control-Allow-Origin'))
