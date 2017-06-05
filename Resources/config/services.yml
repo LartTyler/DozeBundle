@@ -1,4 +1,24 @@
+parameters:
+    dbstudios.cors_listener.enabled: true
+    dbstudios.cors_listener.allowed_origins:
+        - *
+    dbstudios.cors_listener.allowed_headers:
+        - *
+    dbstudios.cors_listener.allowed_methods:
+        - *
+    dbstudios.cors_listener.allow_credentials: true
+
 services:
+    dbstudios_doze.cors_listener:
+        class: DaybreakStudios\DozeBundle\Request\CORSListener
+        arguments:
+            - '@logger'
+            - '%dbstudios.cors_listener.enabled%'
+            - '%dbstudios.cors_listener.allowed_origins%'
+            - '%dbstudios.cors_listener.allowed_headers%'
+            - '%dbstudios.cors_listener.allowed_methods%'
+            - '%dbstudios.cors_listener.allow_credentials%'
+
     dbstudios_doze.serializer.entity_normalizer:
         class: DaybreakStudios\Doze\Serializer\EntityNormalizer
 
