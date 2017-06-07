@@ -18,6 +18,16 @@ services:
             - '%dbstudios.cors_listener.allowed_headers%'
             - '%dbstudios.cors_listener.allowed_methods%'
             - '%dbstudios.cors_listener.allow_credentials%'
+        tags:
+            - name: monolog.logger
+              channel: dbstudios_doze.cors_listener
+            - name: kernel.event_listener
+              event: kernel.response
+              method: onKernelResponse
+            - name: kernel.event_listener
+              event: kernel.request
+              method: onKernelRequest
+              priority: 100
 
     dbstudios_doze.serializer.entity_normalizer:
         class: DaybreakStudios\Doze\Serializer\EntityNormalizer
