@@ -77,23 +77,48 @@
 		}
 
 		/**
+		 * @param Request $request
+		 *
 		 * @return array
 		 */
-		public function getAllowedOrigins() {
+		public function getAllowedOrigins(Request $request) {
+			if (sizeof($this->allowedOrigins) === 1 && $this->allowedOrigins[0] === '*')
+				$this->allowedOrigins = [$request->getHost()];
+
 			return $this->allowedOrigins;
 		}
 
 		/**
+		 * @param Request $request
+		 *
 		 * @return array
 		 */
-		public function getAllowedHeaders() {
+		public function getAllowedHeaders(Request $request) {
+			if (sizeof($this->allowedHeaders) === 1 && $this->allowedHeaders[0] === '*') {
+				$requestHeaders = $request->headers->get('Access-Control-Request-Headers');
+
+				if ($requestHeaders)
+					$this->allowedHeaders = array_map(function($header) {
+						return trim($header);
+					}, explode(',', $requestHeaders));
+			}
+
 			return $this->allowedHeaders;
 		}
 
 		/**
+		 * @param Request $request
+		 *
 		 * @return array
 		 */
-		public function getAllowedMethods() {
+		public function getAllowedMethods(Request $request) {
+			if (sizeof($this->allowedOrigins) === 1 && $this->allowedOrigins[0] === '*') {
+				$requestMethod = $request->headers->get('Access-Control-Request-Method');
+
+				if ($requestMethod)
+					$this->allowedMethods = [$requestMethod];
+			}
+
 			return $this->allowedMethods;
 		}
 
@@ -153,10 +178,10 @@
 		 */
 		protected function getCORSHeadersForRequest(Request $request) {
 			return [
-				'Access-Control-Allow-Origin' => implode(', ', $this->getAllowedOrigins()),
-				'Access-Control-Allow-Headers' => implode(', ', $this->getAllowedHeaders()),
+				'Access-Control-Allow-Origin' => implode(', ', $this->getAllowedOrigins($request)),
+				'Access-Control-Allow-Headers' => implode(', ', $this->getAllowedHeaders($request)),
 				'Access-Control-Allow-Credentials' => $this->getAllowCredentials() ? 'true' : 'false',
-				'Access-Control-Allow-Methods' => implode(', ', $this->getAllowedMethods()),
+				'Access-Control-Allow-Methods' => implode(', ', $this->getAllowedMethods($request)),
 			];
 		}
 	}
