@@ -79,13 +79,17 @@
 		/**
 		 * @param Request $request
 		 *
-		 * @return array
+		 * @return string
 		 */
-		public function getAllowedOrigins(Request $request) {
-			if (sizeof($this->allowedOrigins) === 1 && $this->allowedOrigins[0] === '*')
-				$this->allowedOrigins = [$request->getHost()];
+		public function getAllowedOrigin(Request $request) {
+			$requestOrigin = $request->headers->get('origin');
 
-			return $this->allowedOrigins;
+			if (in_array($requestOrigin, $this->allowedOrigins))
+				return $requestOrigin;
+			else if (in_array('*', $this->allowedOrigins))
+				return '*';
+			else
+				return $this->allowedOrigins ? $this->allowedOrigins[0] : 'null';
 		}
 
 		/**
@@ -178,7 +182,7 @@
 		 */
 		protected function getCORSHeadersForRequest(Request $request) {
 			return [
-				'Access-Control-Allow-Origin' => implode(', ', $this->getAllowedOrigins($request)),
+				'Access-Control-Allow-Origin' => $this->getAllowedOrigin($request),
 				'Access-Control-Allow-Headers' => implode(', ', $this->getAllowedHeaders($request)),
 				'Access-Control-Allow-Credentials' => $this->getAllowCredentials() ? 'true' : 'false',
 				'Access-Control-Allow-Methods' => implode(', ', $this->getAllowedMethods($request)),
