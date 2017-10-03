@@ -79,19 +79,17 @@
 		/**
 		 * @param Request $request
 		 *
-		 * @return array
+		 * @return string
 		 */
 		public function getAllowedOrigin(Request $request) {
-			$protocol = $request->isSecure() ? 'https://' : 'http://';
-			$origin = $protocol . $request->getHost();
-
 			$requestOrigin = $request->headers->get('origin');
-			if (in_array('*', $this->allowedOrigins))
-				$origin = '*';
-			elseif (in_array($requestOrigin, $this->allowedOrigins))
-				$this->allowedOrigins = [$requestOrigin];
 
-			return $origin;
+			if (in_array($requestOrigin, $this->allowedOrigins))
+				return $requestOrigin;
+			else if (in_array('*', $this->allowedOrigins))
+				return '*';
+			else
+				return $this->allowedOrigins ? $this->allowedOrigins[0] : 'null';
 		}
 
 		/**
