@@ -114,6 +114,7 @@ or via dependency injection.
 ```php
 <?php
     use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+    use DaybreakStudios\DozeBundle\ResponderService;
 
     class MyController extends Controller {
         public function indexAction(ResponderService $responder, $id) {
