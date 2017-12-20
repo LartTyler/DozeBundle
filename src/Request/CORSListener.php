@@ -190,11 +190,16 @@
 		 * @return array
 		 */
 		protected function getCORSHeadersForRequest(Request $request) {
-			return [
+			$headers = [
 				'Access-Control-Allow-Origin' => $this->getAllowedOrigin($request),
 				'Access-Control-Allow-Headers' => implode(', ', $this->getAllowedHeaders($request)),
 				'Access-Control-Allow-Credentials' => $this->getAllowCredentials() ? 'true' : 'false',
 				'Access-Control-Allow-Methods' => implode(', ', $this->getAllowedMethods($request)),
 			];
+
+			if (!$this->wildcardOriginAllow)
+				$headers['Vary'] = 'Origin';
+
+			return $headers;
 		}
 	}
