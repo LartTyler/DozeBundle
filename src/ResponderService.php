@@ -1,5 +1,4 @@
 <?php
-
 	namespace DaybreakStudios\DozeBundle;
 
 	use DaybreakStudios\Doze\Errors\ApiErrorInterface;
