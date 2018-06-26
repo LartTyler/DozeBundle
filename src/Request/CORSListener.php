@@ -44,6 +44,11 @@
 		private $allowCredentials;
 
 		/**
+		 * @var bool
+		 */
+		private $wildcardOriginAllow;
+
+		/**
 		 * CORSListener constructor.
 		 *
 		 * @param LoggerInterface $logger
@@ -63,10 +68,16 @@
 		) {
 			$this->logger = $logger;
 			$this->enabled = $enabled;
-			$this->allowedOrigins = $allowedOrigins;
+			$this->allowedOrigins = $allowedOrigins ?: ['null'];
 			$this->allowedHeaders = $allowedHeaders;
 			$this->allowedMethods = $allowedMethods;
 			$this->allowCredentials = $allowCredentials;
+
+			$this->wildcardOriginAllow = sizeof($allowedOrigins) === 1 && $allowedOrigins[0] === '*';
+
+			if ($allowCredentials && $this->wildcardOriginAllow)
+				throw new \InvalidArgumentException('You cannot use wildcard allowed origins when allow ' .
+					'credentials is true');
 		}
 
 		/**
@@ -82,14 +93,12 @@
 		 * @return string
 		 */
 		public function getAllowedOrigin(Request $request) {
-			$requestOrigin = $request->headers->get('origin');
+			$origin = $request->headers->get('origin');
 
-			if (in_array($requestOrigin, $this->allowedOrigins))
-				return $requestOrigin;
-			else if (in_array('*', $this->allowedOrigins))
-				return '*';
-			else
-				return $this->allowedOrigins ? $this->allowedOrigins[0] : 'null';
+			if ($this->wildcardOriginAllow || in_array($origin, $this->allowedOrigins))
+				return $origin;
+
+			return @$this->allowedOrigins[0];
 		}
 
 		/**
@@ -181,11 +190,16 @@
 		 * @return array
 		 */
 		protected function getCORSHeadersForRequest(Request $request) {
-			return [
+			$headers = [
 				'Access-Control-Allow-Origin' => $this->getAllowedOrigin($request),
 				'Access-Control-Allow-Headers' => implode(', ', $this->getAllowedHeaders($request)),
 				'Access-Control-Allow-Credentials' => $this->getAllowCredentials() ? 'true' : 'false',
 				'Access-Control-Allow-Methods' => implode(', ', $this->getAllowedMethods($request)),
 			];
+
+			if (!$this->wildcardOriginAllow)
+				$headers['Vary'] = 'Origin';
+
+			return $headers;
 		}
 	}

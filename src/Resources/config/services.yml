@@ -11,6 +11,7 @@ parameters:
 services:
     dbstudios_doze.cors_listener:
         class: DaybreakStudios\DozeBundle\Request\CORSListener
+        public: false
         arguments:
             - '@logger'
             - '%dbstudios.cors_listener.enabled%'
@@ -19,15 +20,18 @@ services:
             - '%dbstudios.cors_listener.allowed_methods%'
             - '%dbstudios.cors_listener.allow_credentials%'
         tags:
-            - name: monolog.logger
-              channel: dbstudios_doze.cors_listener
-            - name: kernel.event_listener
-              event: kernel.response
-              method: onKernelResponse
-            - name: kernel.event_listener
-              event: kernel.request
-              method: onKernelRequest
-              priority: 100
+            -
+                name: monolog.logger
+                channel: dbstudios_doze.cors_listener
+            -
+                name: kernel.event_listener
+                event: kernel.response
+                method: onKernelResponse
+            -
+                name: kernel.event_listener
+                event: kernel.request
+                method: onKernelRequest
+                priority: 100
 
     dbstudios_doze.serializer.entity_normalizer:
         class: DaybreakStudios\Doze\Serializer\EntityNormalizer
@@ -35,4 +39,5 @@ services:
     dbstudios_doze.request.api_bag_converter:
         class: DaybreakStudios\DozeBundle\Request\ApiParameterBagConverter
         tags:
-            - name: request.param_converter
+            -
+                name: request.param_converter
