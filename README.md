@@ -123,7 +123,7 @@ or via dependency injection.
             if ($entity === null)
                 return $responder->createNotFoundResponse();
 
-            return $responser->createResponse($entity);
+            return $responder->createResponse($entity);
         }
     }
 ```
