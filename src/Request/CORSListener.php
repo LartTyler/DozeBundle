@@ -33,6 +33,12 @@
 		 * @var array
 		 */
 		private $allowedHeaders;
+
+		/**
+		 * @var array
+		 */
+		private $exposedHeaders;
+
 		/**
 		 * @var array
 		 */
@@ -57,6 +63,7 @@
 		 * @param array           $allowedHeaders
 		 * @param array           $allowedMethods
 		 * @param bool            $allowCredentials
+		 * @param array           $exposedHeaders
 		 */
 		public function __construct(
 			LoggerInterface $logger,
@@ -64,12 +71,14 @@
 			array $allowedOrigins,
 			array $allowedHeaders,
 			array $allowedMethods,
-			$allowCredentials = true
+			$allowCredentials = true,
+			array $exposedHeaders = []
 		) {
 			$this->logger = $logger;
 			$this->enabled = $enabled;
 			$this->allowedOrigins = $allowedOrigins ?: ['null'];
 			$this->allowedHeaders = $allowedHeaders;
+			$this->exposedHeaders = $exposedHeaders;
 			$this->allowedMethods = $allowedMethods;
 			$this->allowCredentials = $allowCredentials;
 
@@ -117,6 +126,24 @@
 			}
 
 			return $this->allowedHeaders;
+		}
+
+		/**
+		 * @param Response $response
+		 *
+		 * @return array
+		 */
+		public function getExposedHeaders(Response $response) {
+			if (sizeof($this->exposedHeaders) === 1 && $this->exposedHeaders[0] === '*') {
+				$headers = [];
+
+				foreach ($response->headers->all() as $key => $value)
+					$headers[$key] = true;
+
+				$this->exposedHeaders = array_keys($headers);
+			}
+
+			return $this->exposedHeaders;
 		}
 
 		/**
@@ -182,6 +209,12 @@
 				return;
 
 			$response->headers->add($this->getCORSHeadersForRequest($event->getRequest()));
+
+			if ($exposed = $this->getExposedHeaders($response)) {
+				$response->headers->add([
+					'Access-Control-Expose-Headers' => implode(', ', $exposed),
+				]);
+			}
 		}
 
 		/**

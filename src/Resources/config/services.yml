@@ -4,6 +4,7 @@ parameters:
         - '*'
     dbstudios.cors_listener.allowed_headers:
         - '*'
+    dbstudios.cors_listener.exposed_headers: []
     dbstudios.cors_listener.allowed_methods:
         - '*'
     dbstudios.cors_listener.allow_credentials: true
@@ -19,6 +20,7 @@ services:
             - '%dbstudios.cors_listener.allowed_headers%'
             - '%dbstudios.cors_listener.allowed_methods%'
             - '%dbstudios.cors_listener.allow_credentials%'
+            - '%dbstudios.cors_listener.exposed_headers%'
         tags:
             -
                 name: monolog.logger

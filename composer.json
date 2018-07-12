@@ -2,6 +2,7 @@
 	"name": "dbstudios/doze-bundle",
 	"description": "An easy to use library for building REST APIs in Symfony",
 	"license": "GPL-3.0",
+	"type": "symfony-bundle",
 	"authors": [
 		{
 			"name": "Tyler Lartonoix",
